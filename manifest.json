@@ -1,0 +1,10 @@
+﻿{
+  "Name": "Easy Return Scepter",
+  "Author": "MysticalAsian",
+  "Version": "1.0.0",
+  "Description": "Allows you to bind the Return Scepter item to a key for easier access",
+  "UniqueID": "MysticalAsian.EasyReturnScepter",
+  "EntryDll": "EasyReturnScepter.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": [ "Nexus:37941" ]
+}
