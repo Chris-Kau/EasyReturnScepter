@@ -2,6 +2,7 @@
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,6 @@ namespace EasyReturnScepter
     {
         private ModConfig Config;
         private const string returnScepterId = $"{ItemRegistry.type_tool}ReturnScepter";
-        private readonly Lazy<STool> ReturnScepter = new(() => ItemRegistry.Create<STool>(returnScepterId));
         /*********
         ** Public methods
         *********/
@@ -60,24 +60,38 @@ namespace EasyReturnScepter
 
             if (this.Config.ReturnScepterKeybind.JustPressed())
             {
-                STool rs = ReturnScepter.Value;
-                if (this.hasReturnScepter(player) && Context.IsPlayerFree && Context.CanPlayerMove)
+
+                int wandIndex = -1;
+                Wand? wand = null;
+
+                // find the index of the return scepter in the player's inventory
+                for (int i = 0; i < player.Items.Count; i++)
                 {
-                    rs.beginUsing(player.currentLocation, (int)player.Position.X, (int)player.Position.Y, player);
-                    rs.DoFunction(player.currentLocation, (int)player.Position.X, (int)player.Position.Y, 0, player);
-                    rs.endUsing(player.currentLocation, player);
+                    if (player.Items[i] is STool t && t.QualifiedItemId == returnScepterId)
+                    {
+                        wandIndex = i;
+                        wand = t as Wand;
+                        break;
+                    }
+                }
+
+                if (wand != null && Context.IsPlayerFree && Context.CanPlayerMove)
+                {
+                    // temporarily select the scepter so the game treats it as CurrentTool
+                    int prevIndex = player.CurrentToolIndex;
+                    player.CurrentToolIndex = wandIndex;
+
+                    // start using the scepter
+                    wand.beginUsing(player.currentLocation, (int)player.Position.X, (int)player.Position.Y, player);
+
+                    // switch the player back to their previous tool
+                    Game1.player.CurrentToolIndex = prevIndex;
+
+
                 }
             }
         }
 
-        private bool hasReturnScepter(Farmer player)
-        {
-            foreach (Item i in player.Items)
-            {
-                if (i?.QualifiedItemId == returnScepterId)
-                    return true;
-            }
-            return false;
-        }
+
     }
 }
